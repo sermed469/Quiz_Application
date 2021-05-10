@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<item android:id="@+id/add_question_actionbar" android:title="Add Question" />
+    <item android:id="@+id/list_questions_actionbar" android:title="List Questions" />
+    <item android:id="@+id/quiz_settings_actionbar" android:title="Quiz Setting" />
+    <item android:id="@+id/create_quiz_actionbar" android:title="Create Quiz" />
+</menu>

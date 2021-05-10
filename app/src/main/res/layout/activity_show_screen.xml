@@ -30,49 +30,4 @@
         app:layout_constraintTop_toBottomOf="@+id/userInfoText"
         tools:srcCompat="@tools:sample/avatars" />
 
-    <Button
-        android:id="@+id/AddQuestionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="192dp"
-        android:text="Add Question"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/SettingButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Setting"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ListQuestionButton"
-        app:layout_constraintVertical_bias="0.18" />
-
-    <Button
-        android:id="@+id/ListQuestionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="List questions"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.519"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/AddQuestionButton"
-        app:layout_constraintVertical_bias="0.096" />
-
-    <Button
-        android:id="@+id/CreateQuizButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="create quız"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/SettingButton" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

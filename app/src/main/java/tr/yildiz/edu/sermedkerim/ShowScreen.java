@@ -1,9 +1,13 @@
 package tr.yildiz.edu.sermedkerim;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -13,9 +17,6 @@ public class ShowScreen extends AppCompatActivity {
 
     TextView userInfo;
     ImageView avatar;
-    Button button;
-    Button setting;
-    Button createQuiz;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,48 +25,45 @@ public class ShowScreen extends AppCompatActivity {
 
         userInfo = findViewById(R.id.userInfoText);
         avatar = findViewById(R.id.imageView);
-        button = findViewById(R.id.AddQuestionButton);
-        setting = findViewById(R.id.SettingButton);
-        createQuiz = findViewById(R.id.CreateQuizButton);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ShowScreen.this,AddQuestionScreen.class);
-                startActivity(intent);
-            }
-        });
-
-        Button listButton = findViewById(R.id.ListQuestionButton);
-
-        listButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ShowScreen.this,QuestionListActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        setting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ShowScreen.this,QuizSettings.class);
-                startActivity(intent);
-            }
-        });
-
-        createQuiz.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ShowScreen.this,CreateQuiz.class);
-                startActivity(intent);
-            }
-        });
 
         Intent intent = getIntent();
         avatar.setImageResource(intent.getIntExtra("avatarId",0));
         userInfo.setText(intent.getStringExtra("user"));
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.quiz_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId()){
+
+            case R.id.add_question_actionbar:
+                Intent addQuestionIntent = new Intent(ShowScreen.this,AddQuestionScreen.class);
+                startActivity(addQuestionIntent);
+                break;
+            case R.id.list_questions_actionbar:
+                Intent questionListIntent = new Intent(ShowScreen.this,QuestionListActivity.class);
+                startActivity(questionListIntent);
+                break;
+            case R.id.quiz_settings_actionbar:
+                Intent QuizSettingIntent = new Intent(ShowScreen.this,QuizSettings.class);
+                startActivity(QuizSettingIntent);
+                break;
+            case R.id.create_quiz_actionbar:
+                Intent CreateQuizIntent = new Intent(ShowScreen.this,CreateQuiz.class);
+                startActivity(CreateQuizIntent);
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

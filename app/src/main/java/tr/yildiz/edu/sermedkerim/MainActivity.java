@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int avatarId = ControlUser(email.getText().toString(),password.getText().toString());
                 if(avatarId != 0){
+                    Toast.makeText(getApplicationContext(),"Welcome",Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity.this,ShowScreen.class);
                     intent.putExtra("user",email.getText().toString());
                     intent.putExtra("avatarId",avatarId);
