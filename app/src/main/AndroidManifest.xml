@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="tr.yildiz.edu.sermedkerim">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AndroidProgramming">
+        <activity android:name="tr.yildiz.edu.sermedkerim.CreateQuiz"></activity>
+        <activity android:name="tr.yildiz.edu.sermedkerim.QuizSettings" />
+        <activity android:name="tr.yildiz.edu.sermedkerim.QuestionListActivity" />
+        <activity android:name="tr.yildiz.edu.sermedkerim.AddQuestionScreen" />
+        <activity android:name="tr.yildiz.edu.sermedkerim.MenuScreen" />
+        <activity android:name="tr.yildiz.edu.sermedkerim.ShowScreen" />
+        <activity android:name="tr.yildiz.edu.sermedkerim.SignUpScreen" />
+        <activity android:name="tr.yildiz.edu.sermedkerim.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
