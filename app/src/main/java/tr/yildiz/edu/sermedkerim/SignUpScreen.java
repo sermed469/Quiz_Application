@@ -1,33 +1,51 @@
 package tr.yildiz.edu.sermedkerim;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ImageDecoder;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 public class SignUpScreen extends AppCompatActivity {
 
-    EditText name, surname, email, password1, password2;
+    EditText name, surname, email, password1, password2, phone;
+    ImageView avatar;
     TextView dateofbirth;
     Button signup;
+    Bitmap selectedImageBitmap;
     ArrayList<EditText> editTexts = new ArrayList<>();
     DatePickerDialog.OnDateSetListener dateSetListener;
+    static final int REQUEST_IMAGE_OPEN = 100;
+    Uri URI = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +54,15 @@ public class SignUpScreen extends AppCompatActivity {
 
         getReferences();
 
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
         editTexts.add(name);
         editTexts.add(surname);
         editTexts.add(email);
         editTexts.add(password1);
         editTexts.add(password2);
+        editTexts.add(phone);
 
         dateofbirth.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +88,17 @@ public class SignUpScreen extends AppCompatActivity {
             }
         };
 
+        avatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("image/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, REQUEST_IMAGE_OPEN);
+            }
+        });
+
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,18 +106,38 @@ public class SignUpScreen extends AppCompatActivity {
                     if(isEmailValid()){
                         if (isSameUser()){
                             if (password1.getText().toString().matches(password2.getText().toString())){
+                                if(URI != null){
 
-                                String hashedPassword = hashPassword(password1.getText().toString());
+                                    String hashedPassword = hashPassword(password1.getText().toString());
 
-                                Person person = new Person(name.getText().toString(),surname.getText().toString(),dateofbirth.getText().toString(),email.getText().toString(),hashedPassword,R.drawable.sermet);
-                                Person.personList.add(person);
-                                Person.setPersonList(Person.personList);
+                                    Person person = new Person(name.getText().toString(),surname.getText().toString(),dateofbirth.getText().toString(),email.getText().toString(),hashedPassword,phone.getText().toString(),selectedImageBitmap);
+                                    /*Person.personList.add(person);
+                                    Person.setPersonList(Person.personList);*/
 
-                                Intent intent = new Intent(SignUpScreen.this,ShowScreen.class);
-                                intent.putExtra("user",email.getText().toString());
-                                intent.putExtra("avatarId",R.drawable.sermet);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
+                                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                                    selectedImageBitmap.compress(Bitmap.CompressFormat.PNG,50, byteArrayOutputStream);
+                                    byte[] bytes = byteArrayOutputStream.toByteArray();
+
+                                    ContentValues values = new ContentValues();
+                                    values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NAME, name.getText().toString());
+                                    values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_SURNAME, surname.getText().toString());
+                                    values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_EMAIL, email.getText().toString());
+                                    values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_PHONE, phone.getText().toString());
+                                    values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DATEOFBIRTH, dateofbirth.getText().toString());
+                                    values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_PASSWORD, hashedPassword);
+                                    values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_AVATAR, bytes);
+
+                                    long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
+
+                                    Intent intent = new Intent(SignUpScreen.this,ShowScreen.class);
+                                    intent.putExtra("name",name.getText().toString());
+                                    intent.putExtra("avatar",bytes);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                }
+                                else{
+                                    Toast.makeText(getApplicationContext(),"You must select an image",Toast.LENGTH_SHORT).show();
+                                }
                             }
                             else{
                                 Toast.makeText(getApplicationContext(),"Passwords don't match",Toast.LENGTH_SHORT).show();
@@ -105,14 +158,38 @@ public class SignUpScreen extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_IMAGE_OPEN && resultCode == RESULT_OK){
+            URI = data.getData();
+            try {
+                if(Build.VERSION.SDK_INT >= 28){
+                    ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(),URI);
+                    selectedImageBitmap = ImageDecoder.decodeBitmap(source);
+                    avatar.setImageBitmap(selectedImageBitmap);
+                }
+                else{
+                    selectedImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),URI);
+                    avatar.setImageBitmap(selectedImageBitmap);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
     public void getReferences(){
 
         name = findViewById(R.id.editTextName);
         surname = findViewById(R.id.editTextSurname);
         email = findViewById(R.id.editTextEmailSignUp);
         dateofbirth = findViewById(R.id.textView);
+        phone = findViewById(R.id.editTextPhone);
         password1 = findViewById(R.id.editTextPasswordSignUp);
         password2 = findViewById(R.id.editTextPasswordSignUp2);
+        avatar = findViewById(R.id.selectAvatarImageView);
         signup = findViewById(R.id.SignUpButton);
     }
 

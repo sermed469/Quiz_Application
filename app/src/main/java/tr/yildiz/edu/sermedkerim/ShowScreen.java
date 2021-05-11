@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,10 +29,9 @@ public class ShowScreen extends AppCompatActivity {
         avatar = findViewById(R.id.imageView);
 
         Intent intent = getIntent();
-        avatar.setImageResource(intent.getIntExtra("avatarId",0));
-        userInfo.setText(intent.getStringExtra("user"));
-
-
+        Bitmap bitmap =BitmapFactory.decodeByteArray(intent.getByteArrayExtra("avatar"),0,intent.getByteArrayExtra("avatar").length);
+        avatar.setImageBitmap(bitmap);
+        userInfo.setText(intent.getStringExtra("name"));
     }
 
     @Override

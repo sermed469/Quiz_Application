@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="tr.yildiz.edu.MainActivity">
+    tools:context="tr.yildiz.edu.sermedkerim.MainActivity">
 
     <EditText
         android:id="@+id/editTextTextPassword"
