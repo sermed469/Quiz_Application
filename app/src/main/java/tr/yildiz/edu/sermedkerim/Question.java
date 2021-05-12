@@ -1,5 +1,7 @@
 package tr.yildiz.edu.sermedkerim;
 
+import android.net.Uri;
+
 import java.util.ArrayList;
 
 public class Question {
@@ -7,13 +9,17 @@ public class Question {
     String question;
     ArrayList<String> choices;
     String Answer;
+    Uri attachment;
+    String attachmentType;
 
     public static ArrayList<Question> questions = new ArrayList<>();
 
-    public Question(String question, ArrayList<String> choices, String answer) {
+    public Question(String question, ArrayList<String> choices, String answer, Uri attachment, String attachmentType) {
         this.question = question;
         this.choices = choices;
         Answer = answer;
+        this.attachment = attachment;
+        this.attachmentType = attachmentType;
     }
 
     public String getQuestion() {
@@ -40,6 +46,14 @@ public class Question {
         Answer = answer;
     }
 
+    public void setAttachment(Uri attachment) {
+        this.attachment = attachment;
+    }
+
+    public Uri getAttachment() {
+        return attachment;
+    }
+
     public static ArrayList<Question> getQuestions(){
 
         return questions;
@@ -48,5 +62,13 @@ public class Question {
     public static void setQuestions(ArrayList<Question> questions){
 
         Question.questions = questions;
+    }
+
+    public String getAttachmentType() {
+        return attachmentType;
+    }
+
+    public void setAttachmentType(String attachmentType) {
+        this.attachmentType = attachmentType;
     }
 }

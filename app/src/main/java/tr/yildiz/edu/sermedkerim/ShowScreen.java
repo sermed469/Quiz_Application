@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,10 +17,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 public class ShowScreen extends AppCompatActivity {
 
     TextView userInfo;
     ImageView avatar;
+    FloatingActionButton button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,11 +32,27 @@ public class ShowScreen extends AppCompatActivity {
 
         userInfo = findViewById(R.id.userInfoText);
         avatar = findViewById(R.id.imageView);
+        button = findViewById(R.id.floatingActionButton);
+        button.setRippleColor(Color.MAGENTA);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
 
         Intent intent = getIntent();
-        Bitmap bitmap =BitmapFactory.decodeByteArray(intent.getByteArrayExtra("avatar"),0,intent.getByteArrayExtra("avatar").length);
-        avatar.setImageBitmap(bitmap);
-        userInfo.setText(intent.getStringExtra("name"));
+        Bitmap bitmap;
+        if(intent.getByteArrayExtra("avatar") != null){
+            bitmap =BitmapFactory.decodeByteArray(intent.getByteArrayExtra("avatar"),0,intent.getByteArrayExtra("avatar").length);
+            avatar.setImageBitmap(bitmap);
+        }
+
+        userInfo.setText(sharedPreferences.getString("name","Your Name"));
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent addQuestionIntent = new Intent(ShowScreen.this,AddQuestionScreen.class);
+                startActivity(addQuestionIntent);
+            }
+        });
     }
 
     @Override
@@ -47,10 +68,6 @@ public class ShowScreen extends AppCompatActivity {
 
         switch (item.getItemId()){
 
-            case R.id.add_question_actionbar:
-                Intent addQuestionIntent = new Intent(ShowScreen.this,AddQuestionScreen.class);
-                startActivity(addQuestionIntent);
-                break;
             case R.id.list_questions_actionbar:
                 Intent questionListIntent = new Intent(ShowScreen.this,QuestionListActivity.class);
                 startActivity(questionListIntent);

@@ -11,14 +11,18 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     EditText time2, score2;
+    TextView updateTime, updateScore;
     Spinner difficulty2;
+    SeekBar timeSeekbar, scoreSeekbar;
     Button updateSettings;
     RecyclerView chooseRecycler;
     SelectQuestionAdapter selectQuestionAdapter;
@@ -38,9 +42,12 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
         difficulty2.setAdapter(adapter);
         difficulty2.setOnItemSelectedListener(this);
 
-        time2.setText(sharedPreferences.getString("time","0"));
-        score2.setText(sharedPreferences.getString("score","0"));
+        updateTime.setText(sharedPreferences.getString("time","0"));
+        updateScore.setText(sharedPreferences.getString("score","0"));
         String dif = sharedPreferences.getString("difficulty","2");
+
+        scoreSeekbar.setProgress(Integer.parseInt(sharedPreferences.getString("score","5")));
+        timeSeekbar.setProgress(Integer.parseInt(sharedPreferences.getString("time","5")));
 
         switch (dif){
             case "Two":
@@ -70,13 +77,50 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
         selectQuestionAdapter = new SelectQuestionAdapter(questions,CreateQuiz.this);
         chooseRecycler.setAdapter(selectQuestionAdapter);
 
+        timeSeekbar.setMin(15);
+        timeSeekbar.setMax(120);
+        timeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                updateTime.setText(""+progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        scoreSeekbar.setMin(1);
+        scoreSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                updateScore.setText(""+progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         updateSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                editor.putString("time",time2.getText().toString());
-                editor.putString("score",score2.getText().toString());
+                editor.putString("time",updateTime.getText().toString());
+                editor.putString("score",updateScore.getText().toString());
                 editor.putString("difficulty",difficulty2.getItemAtPosition(difficulty2.getSelectedItemPosition()).toString());
                 editor.apply();
             }
@@ -85,10 +129,12 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
 
     public void getReferences(){
 
-        time2 = findViewById(R.id.QuizTimeEditText2);
-        score2 = findViewById(R.id.QuestionScoreEditText2);
         difficulty2 = findViewById(R.id.spinner2);
         updateSettings = findViewById(R.id.updateSettingsButton);
+        updateTime = findViewById(R.id.TimeProgressUpdateText);
+        updateScore = findViewById(R.id.ScoreProgressUpdateText);
+        timeSeekbar = findViewById(R.id.seekBarTimeUpdate);
+        scoreSeekbar = findViewById(R.id.seekBarScoreUpdate);
     }
 
     @Override

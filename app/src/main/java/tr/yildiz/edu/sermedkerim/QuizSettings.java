@@ -10,12 +10,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class QuizSettings extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    EditText time, score;
+    TextView progressText, timeText;
     Spinner difficultySpinner;
+    SeekBar seekBarTime;
+    SeekBar seekBarScore;
     Button set;
 
     @Override
@@ -32,9 +36,12 @@ public class QuizSettings extends AppCompatActivity implements AdapterView.OnIte
 
         SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
 
-        time.setText(sharedPreferences.getString("time","60"));
-        score.setText(sharedPreferences.getString("score","5"));
+        timeText.setText(sharedPreferences.getString("time","60"));
+        progressText.setText(sharedPreferences.getString("score","5"));
         String difficulty = sharedPreferences.getString("difficulty","Two");
+
+        seekBarScore.setProgress(Integer.parseInt(sharedPreferences.getString("score","5")));
+        seekBarTime.setProgress(Integer.parseInt(sharedPreferences.getString("time","5")));
 
         switch (difficulty){
 
@@ -51,6 +58,42 @@ public class QuizSettings extends AppCompatActivity implements AdapterView.OnIte
                 difficultySpinner.setSelection(3);
                 break;
         }
+        seekBarScore.setMin(1);
+        seekBarScore.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressText.setText(""+progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBarTime.setMin(15);
+        seekBarTime.setMax(120);
+        seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                timeText.setText(progress+"");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         set.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,8 +101,8 @@ public class QuizSettings extends AppCompatActivity implements AdapterView.OnIte
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                editor.putString("time",time.getText().toString());
-                editor.putString("score",score.getText().toString());
+                editor.putString("time",timeText.getText().toString());
+                editor.putString("score",progressText.getText().toString());
                 editor.putString("difficulty",difficultySpinner.getItemAtPosition(difficultySpinner.getSelectedItemPosition()).toString());
                 editor.apply();
 
@@ -70,9 +113,12 @@ public class QuizSettings extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void getReferences(){
-        time = findViewById(R.id.QuizTimeEditText);
-        score = findViewById(R.id.QuestionScoreEditText);
+
         difficultySpinner = findViewById(R.id.spinner3);
+        progressText = findViewById(R.id.ScoreProgressText);
+        seekBarScore = findViewById(R.id.seekBarScore);
+        seekBarTime = findViewById(R.id.seekBarTime);
+        timeText = findViewById(R.id.timeProgressText);
         set = findViewById(R.id.SetButton);
     }
 

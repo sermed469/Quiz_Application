@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +17,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Patterns;
 import android.view.View;
@@ -34,6 +37,7 @@ import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class SignUpScreen extends AppCompatActivity {
 
@@ -107,6 +111,13 @@ public class SignUpScreen extends AppCompatActivity {
                         if (isSameUser()){
                             if (password1.getText().toString().matches(password2.getText().toString())){
                                 if(URI != null){
+
+                                    SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
+
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                                    editor.putString("name",name.getText().toString());
+                                    editor.apply();
 
                                     String hashedPassword = hashPassword(password1.getText().toString());
 
@@ -210,12 +221,58 @@ public class SignUpScreen extends AppCompatActivity {
 
     public boolean isSameUser(){
 
-        for(Person p : Person.getPersonList()){
-            if(p.email.matches(email.getText().toString())){
-                return false;
-            }
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                BaseColumns._ID,
+                FeedReaderContract.FeedEntry.COLUMN_NAME_NAME,
+                FeedReaderContract.FeedEntry.COLUMN_NAME_SURNAME,
+                FeedReaderContract.FeedEntry.COLUMN_NAME_EMAIL,
+                FeedReaderContract.FeedEntry.COLUMN_NAME_PHONE,
+                FeedReaderContract.FeedEntry.COLUMN_NAME_DATEOFBIRTH,
+                FeedReaderContract.FeedEntry.COLUMN_NAME_PASSWORD,
+                FeedReaderContract.FeedEntry.COLUMN_NAME_AVATAR,
+        };
+
+        String selection = FeedReaderContract.FeedEntry.COLUMN_NAME_EMAIL + " = ?";
+        String[] selectionArgs = { email.getText().toString() };
+
+        String sortOrder =
+                FeedReaderContract.FeedEntry.COLUMN_NAME_NAME + " DESC";
+
+        Cursor cursor = db.query(
+                FeedReaderContract.FeedEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                sortOrder               // The sort order
+        );
+
+        List itemIds = new ArrayList<>();
+        ArrayList<String> Passwords = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<byte[]> avatars = new ArrayList<>();
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry._ID));
+
+            Passwords.add(cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_PASSWORD)));
+            names.add(cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_NAME)));
+            avatars.add(cursor.getBlob(cursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_AVATAR)));
+            itemIds.add(itemId);
         }
-        return true;
+
+        cursor.close();
+
+        if (itemIds.size() == 0){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     public boolean isEmailValid(){

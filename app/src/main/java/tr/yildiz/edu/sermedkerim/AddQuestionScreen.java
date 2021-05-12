@@ -4,17 +4,25 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class AddQuestionScreen extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -23,7 +31,9 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
     TextView datasource;
     Button addFile, upload, show;
     Spinner spinner;
+    Spinner choiceFile;
     String result;
+    Bitmap selectedImageBitmap;
     ArrayList<Question> questions = new ArrayList<>();
     static final int REQUEST_IMAGE_OPEN = 1;
     Uri URI = null;
@@ -78,16 +88,17 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(this);
 
+            ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this,R.array.file, android.R.layout.simple_spinner_item);
+            adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            choiceFile.setAdapter(adapter2);
+            choiceFile.setOnItemSelectedListener(this);
+
             addFile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    /*Intent intentToGallery = new Intent();
-                    intentToGallery.setType("image/*");
-                    intentToGallery.setAction(Intent.ACTION_GET_CONTENT);
-                    intentToGallery.putExtra("return-data",true);
-                    startActivityForResult(Intent.createChooser(intentToGallery,"Complete action using"), REQUEST_IMAGE_OPEN);*/
+                    String fileType = (String) choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition());
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                    intent.setType("image/*");
+                    intent.setType(fileType+"/*");
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     startActivityForResult(intent, REQUEST_IMAGE_OPEN);
                 }
@@ -115,7 +126,14 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
                                     choices.add(choice5.getText().toString());
                                 }
 
-                                Question q = new Question(question.getText().toString(),choices,answer.getText().toString());
+                                Question q = null;
+
+                                if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("image")){
+                                    q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI,"image");
+                                }
+                                else if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("video")){
+                                    q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI,"video");
+                                }
                                 questions = Question.getQuestions();
                                 questions.add(q);
                                 Question.setQuestions(questions);
@@ -171,6 +189,7 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
         datasource = findViewById(R.id.DataSourceText);
         show = findViewById(R.id.showButton);
         spinner = findViewById(R.id.spinner);
+        choiceFile = findViewById(R.id.spinnerFileType);
     }
 
     public boolean isEmpty(){
@@ -287,7 +306,6 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
                 choice5.setEnabled(true);
                 break;
         }
-
     }
 
     @Override
