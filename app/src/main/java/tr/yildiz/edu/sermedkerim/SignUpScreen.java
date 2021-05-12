@@ -31,10 +31,12 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Blob;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -112,13 +114,6 @@ public class SignUpScreen extends AppCompatActivity {
                             if (password1.getText().toString().matches(password2.getText().toString())){
                                 if(URI != null){
 
-                                    SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
-
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                                    editor.putString("name",name.getText().toString());
-                                    editor.apply();
-
                                     String hashedPassword = hashPassword(password1.getText().toString());
 
                                     Person person = new Person(name.getText().toString(),surname.getText().toString(),dateofbirth.getText().toString(),email.getText().toString(),hashedPassword,phone.getText().toString(),selectedImageBitmap);
@@ -128,6 +123,15 @@ public class SignUpScreen extends AppCompatActivity {
                                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                                     selectedImageBitmap.compress(Bitmap.CompressFormat.PNG,50, byteArrayOutputStream);
                                     byte[] bytes = byteArrayOutputStream.toByteArray();
+
+                                    SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
+
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                                    editor.putString("name",name.getText().toString());
+                                    editor.putString("email",email.getText().toString());
+                                    editor.putString("photo", Arrays.toString(bytes));
+                                    editor.apply();
 
                                     ContentValues values = new ContentValues();
                                     values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_NAME, name.getText().toString());

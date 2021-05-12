@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.os.Build;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 //import com.sermedkerim.androidprogramming.R;
 
 import java.io.IOException;
+import java.security.Provider;
 import java.util.ArrayList;
 
 public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder> {
@@ -83,9 +85,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         holder.videoAtachment.setVisibility(View.INVISIBLE);
         holder.imageAttachment.setVisibility(View.INVISIBLE);
 
-        if(questions.get(position).getAttachment() != null){
+        /*if(questions.get(position).getAttachment() != null){
             if(questions.get(position).getAttachmentType().matches("image")){
-                System.out.println("IMAGE");
                 holder.videoAtachment.setVisibility(View.INVISIBLE);
                 holder.imageAttachment.setVisibility(View.VISIBLE);
 
@@ -104,7 +105,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                 }
             }
             else if(questions.get(position).getAttachmentType().matches("video")){
-                System.out.println("VIDEO");
                 holder.imageAttachment.setVisibility(View.INVISIBLE);
                 holder.videoAtachment.setVisibility(View.VISIBLE);
 
@@ -114,7 +114,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                 holder.videoAtachment.setMediaController(mediaController);
                 mediaController.setAnchorView(holder.videoAtachment);
             }
-        }
+        }*/
 
         if(questions.get(position).getChoices().size() > 2){
             holder.choice3.setText("C) " + questions.get(position).getChoices().get(2));
@@ -138,8 +138,16 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                 builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
+                        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+                        String selection = FeedReaderContract.FeedEntry2.COLUMN_NAME_QUESTION + " LIKE ?";
+                        String[] selectionArgs = { questions.get(position).getQuestion() };
+
+                        int deletedRows = db.delete(FeedReaderContract.FeedEntry2.TABLE_NAME, selection, selectionArgs);
+
                         questions.remove(position);
-                        Question.setQuestions(questions);
+                        //Question.setQuestions(questions);
                         QuestionAdapter.super.notifyDataSetChanged();
                     }
                 });

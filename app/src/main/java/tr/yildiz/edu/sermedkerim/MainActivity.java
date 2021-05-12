@@ -13,7 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -86,10 +88,19 @@ public class MainActivity extends AppCompatActivity {
                     if(itemIds.size() != 0){
 
                         if(Passwords.get(0).matches(SignUpScreen.hashPassword(password.getText().toString()))){
+                            SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
+
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                            editor.putString("name",names.get(0));
+                            editor.putString("photo", Arrays.toString(avatars.get(0)));
+                            editor.putString("email",email.getText().toString());
+                            editor.apply();
+
                             Toast.makeText(getApplicationContext(),"Welcome " + names.get(0),Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(MainActivity.this,ShowScreen.class);
                             intent.putExtra("name",names.get(0));
-                            intent.putExtra("avatar",avatars.get(0));
+                            intent.putExtra("photo",avatars.get(0));
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                         }
@@ -102,13 +113,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this,"There is no user with this email",Toast.LENGTH_SHORT).show();
                         count++;
                     }
-
-                    SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
-
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                    editor.putString("name",names.get(0));
-                    editor.apply();
                 }
                 else{
                     Toast.makeText(getApplicationContext(),"Your sign in process blocked",Toast.LENGTH_SHORT).show();

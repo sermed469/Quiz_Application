@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -24,6 +25,7 @@ public class ShowScreen extends AppCompatActivity {
     TextView userInfo;
     ImageView avatar;
     FloatingActionButton button;
+    Bitmap bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +37,24 @@ public class ShowScreen extends AppCompatActivity {
         button = findViewById(R.id.floatingActionButton);
         button.setRippleColor(Color.MAGENTA);
 
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
         SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
 
-        Intent intent = getIntent();
-        Bitmap bitmap;
-        if(intent.getByteArrayExtra("avatar") != null){
-            bitmap =BitmapFactory.decodeByteArray(intent.getByteArrayExtra("avatar"),0,intent.getByteArrayExtra("avatar").length);
-            avatar.setImageBitmap(bitmap);
+        String stringArray = sharedPreferences.getString("photo", null);
+
+        if (stringArray != null) {
+            String[] split = stringArray.substring(1, stringArray.length()-1).split(", ");
+            byte[] array = new byte[split.length];
+            for (int i = 0; i < split.length; i++) {
+                array[i] = Byte.parseByte(split[i]);
+            }
+
+            bitmap = BitmapFactory.decodeByteArray(array,0,array.length);
         }
+
+        avatar.setImageBitmap(bitmap);
 
         userInfo.setText(sharedPreferences.getString("name","Your Name"));
 

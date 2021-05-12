@@ -16,4 +16,18 @@ public final class FeedReaderContract {
         public static final String COLUMN_NAME_PASSWORD = "password";
         public static final String COLUMN_NAME_AVATAR = "avatar";
     }
+
+    public static class FeedEntry2 implements BaseColumns {
+        public static final String TABLE_NAME = "Question";
+        public static final String COLUMN_NAME_QUESTION = "question";
+        public static final String COLUMN_NAME_CHOICEONE = "choiceone";
+        public static final String COLUMN_NAME_CHOICETWO = "choicetwo";
+        public static final String COLUMN_NAME_CHOICETHREE = "choicethree";
+        public static final String COLUMN_NAME_CHOICEFOUR = "choicefour";
+        public static final String COLUMN_NAME_CHOICEFIVE = "choicefive";
+        public static final String COLUMN_NAME_ANSWER = "answer";
+        public static final String COLUMN_NAME_ATTACHMENT = "attachment";
+        public static final String COLUMN_NAME_ATTACHMENTTYPE = "attachmenttype";
+        public static final String COLUMN_NAME_PERSONEMAIL = "personid";
+    }
 }

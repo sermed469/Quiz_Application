@@ -3,7 +3,10 @@ package tr.yildiz.edu.sermedkerim;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
@@ -44,6 +47,9 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
         setContentView(R.layout.activity_add_question_screen);
 
         getReferences();
+
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         Intent intent = getIntent();
         result = intent.getStringExtra("update");
@@ -111,6 +117,16 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
                     if(isEmpty()){
                         if(isChoicesNotSame()){
                             if(isAnswerTypeCorrect()){
+
+                                SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
+
+                                String SharedEmail = sharedPreferences.getString("email", null);
+
+                                ContentValues values = new ContentValues();
+                                values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_QUESTION, question.getText().toString());
+                                values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEONE, choice1.getText().toString());
+                                values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETWO, choice2.getText().toString());
+
                                 ArrayList<Question> questions = new ArrayList<>();
 
                                 ArrayList<String> choices = new ArrayList<>();
@@ -118,12 +134,24 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
                                 choices.add(choice2.getText().toString());
                                 if(choice3.isEnabled()){
                                     choices.add(choice3.getText().toString());
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETHREE, choice3.getText().toString());
+                                }
+                                else{
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETHREE, "");
                                 }
                                 if(choice4.isEnabled()){
                                     choices.add(choice4.getText().toString());
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFOUR, choice4.getText().toString());
+                                }
+                                else{
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFOUR, "");
                                 }
                                 if(choice5.isEnabled()){
                                     choices.add(choice5.getText().toString());
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFIVE, choice5.getText().toString());
+                                }
+                                else{
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFIVE, "");
                                 }
 
                                 Question q = null;
@@ -137,6 +165,19 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
                                 questions = Question.getQuestions();
                                 questions.add(q);
                                 Question.setQuestions(questions);
+
+                                values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ANSWER, answer.getText().toString());
+                                if(URI != null){
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENT, URI.toString());
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENTTYPE, choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString());
+                                }
+                                else{
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENT, "");
+                                    values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENTTYPE, "");
+                                }
+                                values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_PERSONEMAIL,SharedEmail);
+
+                                long newRowId = db.insert(FeedReaderContract.FeedEntry2.TABLE_NAME, null, values);
 
                                 Intent intent = new Intent(AddQuestionScreen.this,ShowScreen.class);
                                 startActivity(intent);
