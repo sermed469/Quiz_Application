@@ -1,5 +1,6 @@
 package tr.yildiz.edu.sermedkerim;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -37,7 +39,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         ImageView imageView;
         ImageView imageAttachment;
         VideoView videoAtachment;
-        TextView question;
+        TextView question, AttachmentText;
         TextView choice1,choice2,choice3,choice4,choice5,answer;
         Button delete,update;
 
@@ -55,6 +57,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             delete = v.findViewById(R.id.RecycleDeleteButton);
             imageAttachment = v.findViewById(R.id.imageView3);
             videoAtachment = v.findViewById(R.id.videoView2);
+            AttachmentText = v.findViewById(R.id.textViewAttachmentUpdate);
         }
     }
 
@@ -84,7 +87,12 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
         holder.videoAtachment.setVisibility(View.INVISIBLE);
         holder.imageAttachment.setVisibility(View.INVISIBLE);
-
+        if(questions.get(position).getAttachment() != null){
+            holder.AttachmentText.setText(Uri.parse(questions.get(position).getAttachment()).getLastPathSegment());
+        }
+        else{
+            holder.AttachmentText.setText("");
+        }
         /*if(questions.get(position).getAttachment() != null){
             if(questions.get(position).getAttachmentType().matches("image")){
                 holder.videoAtachment.setVisibility(View.INVISIBLE);
@@ -161,11 +169,13 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         holder.update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context,AddQuestionScreen.class);
-                intent.putExtra("update","yes");
-                intent.putExtra("position",position);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Intent intent = new Intent(context,UpdateScreen.class);
+                intent.putExtra("questiontitle",questions.get(position).getQuestion());
+                intent.putExtra("UpdateQuestion",questions.get(position));
+                /*intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);*/
                 context.startActivity(intent);
+                ((Activity)context).finish();
             }
         });
     }

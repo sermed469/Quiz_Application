@@ -2,19 +2,20 @@ package tr.yildiz.edu.sermedkerim;
 
 import android.net.Uri;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Question {
+public class Question implements Serializable {
 
     String question;
     ArrayList<String> choices;
     String Answer;
-    Uri attachment;
+    String attachment;
     String attachmentType;
 
     public static ArrayList<Question> questions = new ArrayList<>();
 
-    public Question(String question, ArrayList<String> choices, String answer, Uri attachment, String attachmentType) {
+    public Question(String question, ArrayList<String> choices, String answer, String attachment, String attachmentType) {
         this.question = question;
         this.choices = choices;
         Answer = answer;
@@ -46,11 +47,11 @@ public class Question {
         Answer = answer;
     }
 
-    public void setAttachment(Uri attachment) {
+    public void setAttachment(String attachment) {
         this.attachment = attachment;
     }
 
-    public Uri getAttachment() {
+    public String getAttachment() {
         return attachment;
     }
 

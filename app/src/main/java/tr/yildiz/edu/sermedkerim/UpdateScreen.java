@@ -5,30 +5,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.ImageDecoder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
-public class AddQuestionScreen extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class UpdateScreen extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     EditText question, choice1, choice2, choice3, choice4, choice5, answer;
     TextView datasource;
@@ -38,21 +30,19 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
     String result;
     Bitmap selectedImageBitmap;
     ArrayList<Question> questions = new ArrayList<>();
-    static final int REQUEST_IMAGE_OPEN = 1;
+    static final int REQUEST_IMAGE_OPEN = 2;
     Uri URI = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_question_screen);
-
-        getReferences();
-
-        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        setContentView(R.layout.activity_update_screen);
 
         Intent intent = getIntent();
-        result = intent.getStringExtra("update");
+        String IntentQuestion = intent.getStringExtra("questiontitle");
+        Question UpdateQuestion = (Question) intent.getSerializableExtra("UpdateQuestion");
+
+        getReferences();
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.numbers, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -63,6 +53,37 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         choiceFile.setAdapter(adapter2);
         choiceFile.setOnItemSelectedListener(this);
+
+        question.setText(UpdateQuestion.getQuestion());
+        choice1.setText(UpdateQuestion.getChoices().get(0));
+        choice2.setText(UpdateQuestion.getChoices().get(1));
+        answer.setText(UpdateQuestion.getAnswer());
+
+        if(UpdateQuestion.getChoices().size() == 3){
+            choice3.setText(UpdateQuestion.getChoices().get(2));
+            spinner.setSelection(1);
+        }
+        else if(UpdateQuestion.getChoices().size() == 4){
+            choice4.setText(UpdateQuestion.getChoices().get(3));
+            spinner.setSelection(2);
+        }
+        else if(UpdateQuestion.getChoices().size() == 5){
+            choice5.setText(UpdateQuestion.getChoices().get(4));
+            spinner.setSelection(3);
+        }
+
+        if(UpdateQuestion.getAttachment() != null){
+            datasource.setText(Uri.parse(UpdateQuestion.getAttachment()).getLastPathSegment());
+            if(UpdateQuestion.getAttachmentType().matches("image")){
+                choiceFile.setSelection(0);
+            }
+            else if(UpdateQuestion.getAttachmentType().matches("video")){
+                choiceFile.setSelection(1);
+            }
+            else if(UpdateQuestion.getAttachmentType().matches("audio")){
+                choiceFile.setSelection(2);
+            }
+        }
 
         addFile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,95 +102,101 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
 
                 if(isEmpty()){
                     if(isChoicesNotSame()){
-                        if(isAnswerTypeCorrect()){
+                        if(isAnswerTypeCorrect()) {
 
-                            SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
+                            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+                            SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-                            String SharedEmail = sharedPreferences.getString("email", null);
-
+                            String title = "MyNewTitle";
                             ContentValues values = new ContentValues();
                             values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_QUESTION, question.getText().toString());
                             values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEONE, choice1.getText().toString());
                             values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETWO, choice2.getText().toString());
 
-                            ArrayList<Question> questions = new ArrayList<>();
-
                             ArrayList<String> choices = new ArrayList<>();
                             choices.add(choice1.getText().toString());
                             choices.add(choice2.getText().toString());
-                            if(choice3.isEnabled()){
+                            if (choice3.isEnabled()) {
                                 choices.add(choice3.getText().toString());
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETHREE, choice3.getText().toString());
-                            }
-                            else{
+                            } else {
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETHREE, "");
                             }
-                            if(choice4.isEnabled()){
+                            if (choice4.isEnabled()) {
                                 choices.add(choice4.getText().toString());
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFOUR, choice4.getText().toString());
-                            }
-                            else{
+                            } else {
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFOUR, "");
                             }
-                            if(choice5.isEnabled()){
+                            if (choice5.isEnabled()) {
                                 choices.add(choice5.getText().toString());
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFIVE, choice5.getText().toString());
-                            }
-                            else{
+                            } else {
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFIVE, "");
                             }
 
                             Question q = null;
 
-                            if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("image")){
-                                q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI.toString(),"image");
+                            if(URI != null){
+                                if (choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("image")) {
+                                    q = new Question(question.getText().toString(), choices, answer.getText().toString(), URI.toString(), "image");
+                                } else if (choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("video")) {
+                                    q = new Question(question.getText().toString(), choices, answer.getText().toString(), URI.toString(), "video");
+                                }
                             }
-                            else if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("video")){
-                                q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI.toString(),"video");
-                            }
-                            questions = Question.getQuestions();
-                            questions.add(q);
-                            Question.setQuestions(questions);
 
                             values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ANSWER, answer.getText().toString());
-                            if(URI != null){
+                            if (URI != null) {
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENT, URI.toString());
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENTTYPE, choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString());
-                            }
-                            else{
+                            } else {
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENT, "");
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENTTYPE, "");
                             }
-                            values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_PERSONEMAIL,SharedEmail);
 
-                            long newRowId = db.insert(FeedReaderContract.FeedEntry2.TABLE_NAME, null, values);
+                            String selection = FeedReaderContract.FeedEntry2.COLUMN_NAME_QUESTION + " LIKE ?";
+                            String[] selectionArgs = {IntentQuestion};
 
-                            Intent intent = new Intent(AddQuestionScreen.this,ShowScreen.class);
-                            startActivity(intent);
+                            int count = db.update(
+                                    FeedReaderContract.FeedEntry2.TABLE_NAME,
+                                    values,
+                                    selection,
+                                    selectionArgs);
+
+                            Intent intent1 = new Intent(UpdateScreen.this, QuestionListActivity.class);
+                            startActivity(intent1);
+                            finish();
                         }
                         else{
-                            Toast.makeText(getApplicationContext(),"Answer does not match any of the choices",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(),"Answer does not match any of the choices",Toast.LENGTH_SHORT).show();
                         }
                     }
                     else{
-                        Toast.makeText(getApplicationContext(),"Choices must be different",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),"Choices must be different",Toast.LENGTH_SHORT).show();
                     }
                 }
                 else{
-                    Toast.makeText(getApplicationContext(),"All fields must be non empty",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),"All fields must be non empty",Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        show.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URI.toString()));
+    }
 
-                startActivity(mapIntent);
-            }
-        });
-
+    public void getReferences(){
+        question = findViewById(R.id.editTextQuestionUpdate);
+        choice1 = findViewById(R.id.editTextChoice1Update);
+        choice2 = findViewById(R.id.editTextChoice2Update);
+        choice3 = findViewById(R.id.editTextChoice3Update);
+        choice4 = findViewById(R.id.editTextChoice4Update);
+        choice5 = findViewById(R.id.editTextChoice5Update);
+        answer = findViewById(R.id.editTextAnswerUpdate);
+        addFile = findViewById(R.id.AddFileButtonUpdate);
+        upload = findViewById(R.id.UploadQuestionButtonUpdate);
+        datasource = findViewById(R.id.DataSourceTextUpdate);
+        show = findViewById(R.id.showButtonUpdate);
+        spinner = findViewById(R.id.spinnerUpdate);
+        choiceFile = findViewById(R.id.spinnerFileTypeUpdate);
     }
 
     @Override
@@ -182,20 +209,37 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
         }
     }
 
-    public void getReferences(){
-        question = findViewById(R.id.editTextQuestion);
-        choice1 = findViewById(R.id.editTextChoice1);
-        choice2 = findViewById(R.id.editTextChoice2);
-        choice3 = findViewById(R.id.editTextChoice3);
-        choice4 = findViewById(R.id.editTextChoice4);
-        choice5 = findViewById(R.id.editTextChoice5);
-        answer = findViewById(R.id.editTextAnswer);
-        addFile = findViewById(R.id.AddFileButton);
-        upload = findViewById(R.id.UploadQuestionButton);
-        datasource = findViewById(R.id.DataSourceText);
-        show = findViewById(R.id.showButton);
-        spinner = findViewById(R.id.spinner);
-        choiceFile = findViewById(R.id.spinnerFileType);
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String text = parent.getItemAtPosition(position).toString();
+
+        switch (text){
+            case "Two":
+                choice3.setEnabled(false);
+                choice4.setEnabled(false);
+                choice5.setEnabled(false);
+                break;
+            case "Three":
+                choice3.setEnabled(true);
+                choice4.setEnabled(false);
+                choice5.setEnabled(false);
+                break;
+            case "Four":
+                choice3.setEnabled(true);
+                choice4.setEnabled(true);
+                choice5.setEnabled(false);
+                break;
+            case "Five":
+                choice3.setEnabled(true);
+                choice4.setEnabled(true);
+                choice5.setEnabled(true);
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     public boolean isEmpty(){
@@ -283,39 +327,5 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
         }
 
         return true;
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-        String text = parent.getItemAtPosition(position).toString();
-
-        switch (text){
-            case "Two":
-                choice3.setEnabled(false);
-                choice4.setEnabled(false);
-                choice5.setEnabled(false);
-                break;
-            case "Three":
-                choice3.setEnabled(true);
-                choice4.setEnabled(false);
-                choice5.setEnabled(false);
-                break;
-            case "Four":
-                choice3.setEnabled(true);
-                choice4.setEnabled(true);
-                choice5.setEnabled(false);
-                break;
-            case "Five":
-                choice3.setEnabled(true);
-                choice4.setEnabled(true);
-                choice5.setEnabled(true);
-                break;
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
     }
 }

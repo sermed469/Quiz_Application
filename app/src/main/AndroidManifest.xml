@@ -9,14 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidProgramming">
-        <activity android:name="tr.yildiz.edu.sermedkerim.CreateQuiz"></activity>
-        <activity android:name="tr.yildiz.edu.sermedkerim.QuizSettings" />
-        <activity android:name="tr.yildiz.edu.sermedkerim.QuestionListActivity" />
-        <activity android:name="tr.yildiz.edu.sermedkerim.AddQuestionScreen" />
-        <activity android:name="tr.yildiz.edu.sermedkerim.MenuScreen" />
-        <activity android:name="tr.yildiz.edu.sermedkerim.ShowScreen" />
-        <activity android:name="tr.yildiz.edu.sermedkerim.SignUpScreen" />
-        <activity android:name="tr.yildiz.edu.sermedkerim.MainActivity">
+        <activity android:name=".UpdateScreen"></activity>
+        <activity android:name=".CreateQuiz" />
+        <activity android:name=".QuizSettings" />
+        <activity android:name=".QuestionListActivity" />
+        <activity android:name=".AddQuestionScreen" />
+        <activity android:name=".ShowScreen" />
+        <activity android:name=".SignUpScreen" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

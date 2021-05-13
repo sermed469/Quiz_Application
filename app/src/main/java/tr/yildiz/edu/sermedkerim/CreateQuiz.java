@@ -153,7 +153,7 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
                 dbchoices.add(dbChoice5);
             }
 
-            Question question = new Question(dbQuestion,dbchoices,dbAnswer, Uri.parse(dbAttachment),dbAttacmentType);
+            Question question = new Question(dbQuestion,dbchoices,dbAnswer, dbAttachment,dbAttacmentType);
 
             dbquestions.add(question);
         }
