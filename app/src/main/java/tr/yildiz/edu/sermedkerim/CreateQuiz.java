@@ -71,11 +71,11 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
                 break;
         }
 
-        for(Question q : Question.getQuestions()){
+        /*for(Question q : Question.getQuestions()){
             if(q.getChoices().size() == difficulty2.getSelectedItemPosition() + 2){
                 questions.add(q);
             }
-        }
+        }*/
 
         String SharedEmail = sharedPreferences.getString("email", null);
 

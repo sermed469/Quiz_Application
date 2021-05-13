@@ -108,6 +108,7 @@ public class QuizSettings extends AppCompatActivity implements AdapterView.OnIte
 
                 Intent intent = new Intent(QuizSettings.this,ShowScreen.class);
                 startActivity(intent);
+                finish();
             }
         });
     }

@@ -32,7 +32,7 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
 
     EditText question, choice1, choice2, choice3, choice4, choice5, answer;
     TextView datasource;
-    Button addFile, upload, show;
+    Button addFile, upload;
     Spinner spinner;
     Spinner choiceFile;
     String result;
@@ -121,12 +121,15 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
 
                             Question q = null;
 
-                            if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("image")){
-                                q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI.toString(),"image");
+                            if(URI != null){
+                                if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("image")){
+                                    q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI.toString(),"image");
+                                }
+                                else if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("video")){
+                                    q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI.toString(),"video");
+                                }
                             }
-                            else if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("video")){
-                                q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI.toString(),"video");
-                            }
+
                             questions = Question.getQuestions();
                             questions.add(q);
                             Question.setQuestions(questions);
@@ -146,6 +149,7 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
 
                             Intent intent = new Intent(AddQuestionScreen.this,ShowScreen.class);
                             startActivity(intent);
+                            finish();
                         }
                         else{
                             Toast.makeText(getApplicationContext(),"Answer does not match any of the choices",Toast.LENGTH_SHORT).show();
@@ -160,16 +164,6 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
                 }
             }
         });
-
-        show.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URI.toString()));
-
-                startActivity(mapIntent);
-            }
-        });
-
     }
 
     @Override
@@ -193,7 +187,6 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
         addFile = findViewById(R.id.AddFileButton);
         upload = findViewById(R.id.UploadQuestionButton);
         datasource = findViewById(R.id.DataSourceText);
-        show = findViewById(R.id.showButton);
         spinner = findViewById(R.id.spinner);
         choiceFile = findViewById(R.id.spinnerFileType);
     }
