@@ -92,6 +92,10 @@ public class ShowScreen extends AppCompatActivity {
                 Intent CreateQuizIntent = new Intent(ShowScreen.this,CreateQuiz.class);
                 startActivity(CreateQuizIntent);
                 break;
+            case R.id.action_share:
+                Intent shareQuizIntent = new Intent(ShowScreen.this,ShareQuiz.class);
+                startActivity(shareQuizIntent);
+                break;
         }
 
         return super.onOptionsItemSelected(item);

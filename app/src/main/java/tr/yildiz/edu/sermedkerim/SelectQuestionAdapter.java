@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class SelectQuestionAdapter extends RecyclerView.Adapter<SelectQuestionAdapter.SelectQuestionViewHolder> {
 
     ArrayList<Question> questions;
-    ArrayList<Question> selectedQuestions = new ArrayList<>();
+    public static ArrayList<Question> selectedQuestions = new ArrayList<>();
     Context context;
 
     public static class SelectQuestionViewHolder extends RecyclerView.ViewHolder{

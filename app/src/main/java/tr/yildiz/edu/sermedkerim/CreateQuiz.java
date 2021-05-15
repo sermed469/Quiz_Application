@@ -4,11 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,10 +20,15 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
+    int fileCount;
     EditText time2, score2;
     TextView updateTime, updateScore;
     Spinner difficulty2;
@@ -41,6 +48,9 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
         getReferences();
 
         SharedPreferences sharedPreferences = getSharedPreferences("Shared",MODE_PRIVATE);
+
+        String SharedEmail = sharedPreferences.getString("email", null);
+        fileCount = sharedPreferences.getInt(SharedEmail,0);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.numbers, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -77,7 +87,7 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
             }
         }*/
 
-        String SharedEmail = sharedPreferences.getString("email", null);
+
 
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -214,7 +224,28 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
                 editor.putString("time",updateTime.getText().toString());
                 editor.putString("score",updateScore.getText().toString());
                 editor.putString("difficulty",difficulty2.getItemAtPosition(difficulty2.getSelectedItemPosition()).toString());
+                //editor.putInt("file",fileCount + 1);
+                editor.putInt(SharedEmail,fileCount + 1);
+                editor.putInt("file",1);
                 editor.apply();
+
+                File file  = new File(getApplicationContext().getFilesDir(), "File");
+                //File file  = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), SharedEmail + "File" + "" + ".txt");
+                String filename = SharedEmail + "File" + fileCount + ".txt";
+                String FileContents = createQuizFile(updateTime.getText().toString(),updateScore.getText().toString(),difficulty2.getItemAtPosition(difficulty2.getSelectedItemPosition()).toString());
+                try {
+                    FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
+                    //FileOutputStream fos = new FileOutputStream(file);
+                    fos.write(FileContents.getBytes());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Intent intent = new Intent(CreateQuiz.this,ShowScreen.class);
+                startActivity(intent);
+                finish();
             }
         });
     }
@@ -229,8 +260,42 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
         scoreSeekbar = findViewById(R.id.seekBarScoreUpdate);
     }
 
+    public String createQuizFile(String time,String score,String difficulty){
+
+        String file = "";
+
+        file += "Quiz time : " + time + " minute\n";
+        file += "Question point : " + score + "\n";
+        file += "Quiz difficulty : " + difficulty + "\n\n";
+
+        for(Question q : SelectQuestionAdapter.selectedQuestions){
+            file += "Question : " + q.getQuestion() + "\n";
+            file += "A)" + q.getChoices().get(0) + "\n";
+            file += "B)" + q.getChoices().get(1) + "\n";
+            if(q.getChoices().size() == 3){
+                file += "C)" + q.getChoices().get(2) + "\n";
+            }
+            else if(q.getChoices().size() == 4){
+                file += "D)" + q.getChoices().get(3) + "\n";
+            }
+            else if(q.getChoices().size() == 5){
+                file += "E)" + q.getChoices().get(4) + "\n";
+            }
+
+            if(!q.getAttachment().matches("")){
+                file += "Attachment : " + Uri.parse(q.getAttachment()).getLastPathSegment() + "\n";
+            }
+
+            file += "Answer : " + q.getAnswer() + "\n\n";
+        }
+
+        return file;
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        SelectQuestionAdapter.selectedQuestions.clear();
 
         dbquestions.clear();
 

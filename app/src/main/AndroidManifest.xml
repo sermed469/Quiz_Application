@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidProgramming">
-        <activity android:name=".UpdateScreen"></activity>
+        <activity android:name=".ShareQuiz"></activity>
+        <activity android:name=".UpdateScreen" />
         <activity android:name=".CreateQuiz" />
         <activity android:name=".QuizSettings" />
         <activity android:name=".QuestionListActivity" />
