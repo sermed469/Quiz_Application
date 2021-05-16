@@ -1,16 +1,20 @@
 package tr.yildiz.edu.sermedkerim;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.PatternMatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,24 +23,24 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.Permission;
 import java.util.ArrayList;
 
 public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     int fileCount;
-    EditText time2, score2;
     TextView updateTime, updateScore;
     Spinner difficulty2;
     SeekBar timeSeekbar, scoreSeekbar;
     Button updateSettings;
     RecyclerView chooseRecycler;
     SelectQuestionAdapter selectQuestionAdapter;
-    ArrayList<Question> questions = new ArrayList<>();
     ArrayList<Question> dbquestions = new ArrayList<>();
     ArrayList<Question> questions1 = new ArrayList<>();
 
@@ -81,14 +85,6 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
                 break;
         }
 
-        /*for(Question q : Question.getQuestions()){
-            if(q.getChoices().size() == difficulty2.getSelectedItemPosition() + 2){
-                questions.add(q);
-            }
-        }*/
-
-
-
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -132,10 +128,6 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
         String dbAttachment;
         String dbAttacmentType;
         while(cursor.moveToNext()) {
-            /*long itemId = cursor.getLong(
-                    cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry._ID));*/
-            //names.add(cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_NAME)));
-            //itemIds.add(itemId);
             dbQuestion = cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry2.COLUMN_NAME_QUESTION));
             dbChoice1 = cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEONE));
             dbChoice2 = cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETWO));
@@ -224,23 +216,25 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
                 editor.putString("time",updateTime.getText().toString());
                 editor.putString("score",updateScore.getText().toString());
                 editor.putString("difficulty",difficulty2.getItemAtPosition(difficulty2.getSelectedItemPosition()).toString());
-                //editor.putInt("file",fileCount + 1);
                 editor.putInt(SharedEmail,fileCount + 1);
                 editor.putInt("file",1);
                 editor.apply();
 
-                File file  = new File(getApplicationContext().getFilesDir(), "File");
-                //File file  = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), SharedEmail + "File" + "" + ".txt");
                 String filename = SharedEmail + "File" + fileCount + ".txt";
+                File file = new File(getExternalFilesDir("files"),filename);
                 String FileContents = createQuizFile(updateTime.getText().toString(),updateScore.getText().toString(),difficulty2.getItemAtPosition(difficulty2.getSelectedItemPosition()).toString());
-                try {
-                    FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
-                    //FileOutputStream fos = new FileOutputStream(file);
-                    fos.write(FileContents.getBytes());
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                if(isExternalStorageWritable()){
+                    try {
+                        FileOutputStream fos = new FileOutputStream(file);
+                        fos.write(FileContents.getBytes());
+                        fos.close();
+                        Toast.makeText(getApplicationContext(),"File Saved",Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 Intent intent = new Intent(CreateQuiz.this,ShowScreen.class);
@@ -258,6 +252,28 @@ public class CreateQuiz extends AppCompatActivity implements AdapterView.OnItemS
         updateScore = findViewById(R.id.ScoreProgressUpdateText);
         timeSeekbar = findViewById(R.id.seekBarTimeUpdate);
         scoreSeekbar = findViewById(R.id.seekBarScoreUpdate);
+    }
+
+    public boolean checkPermission(String permission){
+       int check = ContextCompat.checkSelfPermission(this, permission);
+       System.out.println(check == PackageManager.PERMISSION_GRANTED);
+       return (check == PackageManager.PERMISSION_GRANTED);
+    }
+
+    public boolean isExternalStorageWritable(){
+        String state = Environment.getExternalStorageState();
+        if(Environment.MEDIA_MOUNTED.equals(state)){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isExternalStorageReadable(){
+        String state = Environment.getExternalStorageState();
+        if(Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)){
+            return true;
+        }
+        return false;
     }
 
     public String createQuizFile(String time,String score,String difficulty){

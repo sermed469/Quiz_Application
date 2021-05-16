@@ -32,7 +32,6 @@ public class QuestionListActivity extends AppCompatActivity {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         String[] projection = {
-                //BaseColumns._ID,
                 FeedReaderContract.FeedEntry2.COLUMN_NAME_QUESTION,
                 FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEONE,
                 FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETWO,
@@ -62,7 +61,6 @@ public class QuestionListActivity extends AppCompatActivity {
         );
 
         List itemIds = new ArrayList<>();
-        //ArrayList<String> names = new ArrayList<>();
         ArrayList<Question> dbquestions = new ArrayList<>();
         String dbQuestion;
         String dbChoice1;
@@ -73,11 +71,8 @@ public class QuestionListActivity extends AppCompatActivity {
         String dbAnswer;
         String dbAttachment;
         String dbAttacmentType;
+
         while(cursor.moveToNext()) {
-            /*long itemId = cursor.getLong(
-                    cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry._ID));*/
-            //names.add(cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry.COLUMN_NAME_NAME)));
-            //itemIds.add(itemId);
             dbQuestion = cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry2.COLUMN_NAME_QUESTION));
             dbChoice1 = cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEONE));
             dbChoice2 = cursor.getString(cursor.getColumnIndex(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETWO));

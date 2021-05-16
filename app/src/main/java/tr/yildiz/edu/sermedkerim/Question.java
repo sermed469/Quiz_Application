@@ -13,8 +13,6 @@ public class Question implements Serializable {
     String attachment;
     String attachmentType;
 
-    public static ArrayList<Question> questions = new ArrayList<>();
-
     public Question(String question, ArrayList<String> choices, String answer, String attachment, String attachmentType) {
         this.question = question;
         this.choices = choices;
@@ -53,16 +51,6 @@ public class Question implements Serializable {
 
     public String getAttachment() {
         return attachment;
-    }
-
-    public static ArrayList<Question> getQuestions(){
-
-        return questions;
-    }
-
-    public static void setQuestions(ArrayList<Question> questions){
-
-        Question.questions = questions;
     }
 
     public String getAttachmentType() {

@@ -3,6 +3,7 @@ package tr.yildiz.edu.sermedkerim;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,8 +37,6 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
     Spinner spinner;
     Spinner choiceFile;
     String result;
-    Bitmap selectedImageBitmap;
-    ArrayList<Question> questions = new ArrayList<>();
     static final int REQUEST_IMAGE_OPEN = 1;
     Uri URI = null;
 
@@ -92,8 +91,6 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
                             values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEONE, choice1.getText().toString());
                             values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICETWO, choice2.getText().toString());
 
-                            ArrayList<Question> questions = new ArrayList<>();
-
                             ArrayList<String> choices = new ArrayList<>();
                             choices.add(choice1.getText().toString());
                             choices.add(choice2.getText().toString());
@@ -118,21 +115,6 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
                             else{
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFIVE, "");
                             }
-
-                            Question q = null;
-
-                            if(URI != null){
-                                if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("image")){
-                                    q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI.toString(),"image");
-                                }
-                                else if(choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("video")){
-                                    q = new Question(question.getText().toString(),choices,answer.getText().toString(),URI.toString(),"video");
-                                }
-                            }
-
-                            questions = Question.getQuestions();
-                            questions.add(q);
-                            Question.setQuestions(questions);
 
                             values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ANSWER, answer.getText().toString());
                             if(URI != null){
@@ -171,6 +153,7 @@ public class AddQuestionScreen extends AppCompatActivity implements AdapterView.
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_IMAGE_OPEN && resultCode == RESULT_OK){
             URI = data.getData();
+            getContentResolver().takePersistableUriPermission(URI,Intent.FLAG_GRANT_READ_URI_PERMISSION);
             datasource.setText(URI.getLastPathSegment());
             datasource.setVisibility(View.VISIBLE);
         }

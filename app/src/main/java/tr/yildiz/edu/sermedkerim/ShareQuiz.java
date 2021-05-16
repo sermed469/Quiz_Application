@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -75,69 +77,41 @@ public class ShareQuiz extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     quiz.setText("");
-                    //choosenFile = choosenFile + 1;
                     String filename = email + "File" + choosenFile + ".txt";
 
-                    FileInputStream fis = null;
-                    try {
-                        fis = getApplicationContext().openFileInput(filename);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    InputStreamReader inputStreamReader = new InputStreamReader(fis, StandardCharsets.UTF_8);
+                    FileReader fr = null;
+                    File file = new File(getExternalFilesDir("files"),filename);
                     StringBuilder stringBuilder = new StringBuilder();
-
-                    try (BufferedReader reader = new BufferedReader(inputStreamReader)){
-                        String line = reader.readLine();
+                    try {
+                        fr = new FileReader(file);
+                        BufferedReader bufferedReader = new BufferedReader(fr);
+                        String line = bufferedReader.readLine();
                         while (line != null){
                             stringBuilder.append(line).append("\n");
-                            line = reader.readLine();
+                            line = bufferedReader.readLine();
                         }
+                    }catch (FileNotFoundException e){
+                        e.printStackTrace();
                     }catch (IOException e){
-
+                        e.printStackTrace();
                     }finally {
                         String contents = stringBuilder.toString();
                         quiz.setText(contents);
                     }
+
                 }
             });
 
             share.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                /*Intent intent = new Intent(Intent.ACTION_SEND);
-
-// Always use string resources for UI text.
-// This says something like "Share this photo with"
-                String title = getResources().getString(R.string.chooser_title);
-// Create intent to show chooser
-                Intent chooser = Intent.createChooser(intent, title);
-
-// Try to invoke the intent.
-                try {
-                    startActivity(chooser);
-                } catch (ActivityNotFoundException e) {
-                    // Define what your app should do if no activity can handle the intent.
-                }*/
-
-                /*Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, "This is my text to send.");
-                sendIntent.setType("text/plain");
-                startActivity(sendIntent);*/
-
                     String filename = email + "File" + choosenFile + ".txt";
                     File file = new File(getApplicationContext().getFilesDir(), filename);
-                    //File file  = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), email + "File" + "" + ".txt");
+
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.setType("text/*");
-                    intent.putExtra(Intent.EXTRA_STREAM,Uri.parse("/data/data/tr.yildiz.edu.sermedkerim/files/" + filename));
+                    intent.putExtra(Intent.EXTRA_STREAM,Uri.parse("/storage/1BEC-080A/Android/data/tr.yildiz.edu.sermedkerim/files/files/" + filename));
                     startActivity(Intent.createChooser(intent,"Share"));
-                /*Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                sharingIntent.setType("text/*");
-                sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + file.getAbsolutePath()));
-                startActivity(Intent.createChooser(sharingIntent, "share file with"));*/
-
                 }
             });
         }

@@ -14,8 +14,6 @@ public class Person {
     String phone;
     Bitmap avatar;
 
-    public static ArrayList<Person> personList = new ArrayList<>();
-
     public Person(String name, String surname, String birth, String email, String password, String phone, Bitmap avatar) {
         this.name = name;
         this.surname = surname;
@@ -82,24 +80,4 @@ public class Person {
         this.avatar = avatar;
     }
 
-    public static ArrayList<Person> getPersonList(){
-
-        //Person sermet = new Person("sermet","kerim","16.12.1998","sermet@mail.com",SignUpScreen.hashPassword("12345"), R.drawable.sermet);
-        /*Person ali = new Person();
-        Person leyla = new Person();
-        Person berk = new Person();
-        Person zeynep = new Person();
-*/
-        //personList.add(sermet);
-        /*personList.add(ali);
-        personList.add(leyla);
-        personList.add(berk);
-        personList.add(zeynep);*/
-
-        return personList;
-    }
-
-    public static void setPersonList(ArrayList<Person> personList) {
-        Person.personList = personList;
-    }
 }

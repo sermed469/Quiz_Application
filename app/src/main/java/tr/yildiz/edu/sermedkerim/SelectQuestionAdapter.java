@@ -1,6 +1,7 @@
 package tr.yildiz.edu.sermedkerim;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ public class SelectQuestionAdapter extends RecyclerView.Adapter<SelectQuestionAd
 
         ImageView imageView;
         TextView question;
-        TextView choice1,choice2,choice3,choice4,choice5,answer;
+        TextView choice1,choice2,choice3,choice4,choice5,answer,attachment;
         CheckBox checkBox;
 
         public SelectQuestionViewHolder(View v){
@@ -37,6 +38,7 @@ public class SelectQuestionAdapter extends RecyclerView.Adapter<SelectQuestionAd
             choice4 = v.findViewById(R.id.SelectChoiceDText);
             choice5 = v.findViewById(R.id.SelectChoiceEText);
             answer = v.findViewById(R.id.SelectRecyclerAnswerText);
+            attachment = v.findViewById(R.id.createQuizAttachmentText);
             checkBox = v.findViewById(R.id.checkBox);
         }
     }
@@ -70,10 +72,17 @@ public class SelectQuestionAdapter extends RecyclerView.Adapter<SelectQuestionAd
             holder.choice4.setText("D) " + questions.get(position).getChoices().get(3));
         }
         if(questions.get(position).getChoices().size() > 4){
-            holder.choice5.setText("C) " + questions.get(position).getChoices().get(4));
+            holder.choice5.setText("E) " + questions.get(position).getChoices().get(4));
         }
 
         holder.answer.setText("Answer: " + questions.get(position).getAnswer());
+
+        if(!questions.get(position).getAttachment().matches("")){
+            holder.attachment.setText("Attachment: " + Uri.parse(questions.get(position).getAttachment()).getLastPathSegment());
+        }
+        else{
+            holder.attachment.setText("");
+        }
 
         holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

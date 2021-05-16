@@ -24,12 +24,9 @@ public class UpdateScreen extends AppCompatActivity implements AdapterView.OnIte
 
     EditText question, choice1, choice2, choice3, choice4, choice5, answer;
     TextView datasource;
-    Button addFile, upload, show;
+    Button addFile, upload;
     Spinner spinner;
     Spinner choiceFile;
-    String result;
-    Bitmap selectedImageBitmap;
-    ArrayList<Question> questions = new ArrayList<>();
     static final int REQUEST_IMAGE_OPEN = 2;
     Uri URI = null;
 
@@ -64,15 +61,19 @@ public class UpdateScreen extends AppCompatActivity implements AdapterView.OnIte
             spinner.setSelection(1);
         }
         else if(UpdateQuestion.getChoices().size() == 4){
+            choice3.setText(UpdateQuestion.getChoices().get(2));
             choice4.setText(UpdateQuestion.getChoices().get(3));
             spinner.setSelection(2);
         }
         else if(UpdateQuestion.getChoices().size() == 5){
+            choice3.setText(UpdateQuestion.getChoices().get(2));
+            choice4.setText(UpdateQuestion.getChoices().get(3));
             choice5.setText(UpdateQuestion.getChoices().get(4));
             spinner.setSelection(3);
         }
 
         if(UpdateQuestion.getAttachment() != null){
+            URI = Uri.parse(UpdateQuestion.getAttachment());
             datasource.setText(Uri.parse(UpdateQuestion.getAttachment()).getLastPathSegment());
             if(UpdateQuestion.getAttachmentType().matches("image")){
                 choiceFile.setSelection(0);
@@ -135,16 +136,6 @@ public class UpdateScreen extends AppCompatActivity implements AdapterView.OnIte
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_CHOICEFIVE, "");
                             }
 
-                            Question q = null;
-
-                            if(URI != null){
-                                if (choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("image")) {
-                                    q = new Question(question.getText().toString(), choices, answer.getText().toString(), URI.toString(), "image");
-                                } else if (choiceFile.getItemAtPosition(choiceFile.getSelectedItemPosition()).toString().matches("video")) {
-                                    q = new Question(question.getText().toString(), choices, answer.getText().toString(), URI.toString(), "video");
-                                }
-                            }
-
                             values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ANSWER, answer.getText().toString());
                             if (URI != null) {
                                 values.put(FeedReaderContract.FeedEntry2.COLUMN_NAME_ATTACHMENT, URI.toString());
@@ -194,7 +185,6 @@ public class UpdateScreen extends AppCompatActivity implements AdapterView.OnIte
         addFile = findViewById(R.id.AddFileButtonUpdate);
         upload = findViewById(R.id.UploadQuestionButtonUpdate);
         datasource = findViewById(R.id.DataSourceTextUpdate);
-        show = findViewById(R.id.showButtonUpdate);
         spinner = findViewById(R.id.spinnerUpdate);
         choiceFile = findViewById(R.id.spinnerFileTypeUpdate);
     }
@@ -204,6 +194,7 @@ public class UpdateScreen extends AppCompatActivity implements AdapterView.OnIte
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_IMAGE_OPEN && resultCode == RESULT_OK){
             URI = data.getData();
+            getContentResolver().takePersistableUriPermission(URI,Intent.FLAG_GRANT_READ_URI_PERMISSION);
             datasource.setText(URI.getLastPathSegment());
             datasource.setVisibility(View.VISIBLE);
         }

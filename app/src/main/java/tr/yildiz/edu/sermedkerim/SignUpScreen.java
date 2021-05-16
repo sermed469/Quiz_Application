@@ -117,10 +117,6 @@ public class SignUpScreen extends AppCompatActivity {
 
                                     String hashedPassword = hashPassword(password1.getText().toString());
 
-                                    Person person = new Person(name.getText().toString(),surname.getText().toString(),dateofbirth.getText().toString(),email.getText().toString(),hashedPassword,phone.getText().toString(),selectedImageBitmap);
-                                    /*Person.personList.add(person);
-                                    Person.setPersonList(Person.personList);*/
-
                                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                                     selectedImageBitmap.compress(Bitmap.CompressFormat.PNG,50, byteArrayOutputStream);
                                     byte[] bytes = byteArrayOutputStream.toByteArray();

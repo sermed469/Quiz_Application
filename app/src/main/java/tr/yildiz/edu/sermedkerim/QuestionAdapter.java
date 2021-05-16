@@ -87,25 +87,21 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
         holder.videoAtachment.setVisibility(View.INVISIBLE);
         holder.imageAttachment.setVisibility(View.INVISIBLE);
+        holder.AttachmentText.setText("");
+
         if(questions.get(position).getAttachment() != null){
-            holder.AttachmentText.setText(Uri.parse(questions.get(position).getAttachment()).getLastPathSegment());
-        }
-        else{
-            holder.AttachmentText.setText("");
-        }
-        /*if(questions.get(position).getAttachment() != null){
             if(questions.get(position).getAttachmentType().matches("image")){
                 holder.videoAtachment.setVisibility(View.INVISIBLE);
                 holder.imageAttachment.setVisibility(View.VISIBLE);
 
                 try {
                     if(Build.VERSION.SDK_INT >= 28){
-                        ImageDecoder.Source source = ImageDecoder.createSource(context.getContentResolver(),questions.get(position).getAttachment());
+                        ImageDecoder.Source source = ImageDecoder.createSource(context.getContentResolver(),Uri.parse(questions.get(position).getAttachment()));
                         selectedImageBitmap = ImageDecoder.decodeBitmap(source);
                         holder.imageAttachment.setImageBitmap(selectedImageBitmap);
                     }
                     else{
-                        selectedImageBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),questions.get(position).getAttachment());
+                        selectedImageBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),Uri.parse(questions.get(position).getAttachment()));
                         holder.imageAttachment.setImageBitmap(selectedImageBitmap);
                     }
                 } catch (IOException e) {
@@ -116,13 +112,16 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                 holder.imageAttachment.setVisibility(View.INVISIBLE);
                 holder.videoAtachment.setVisibility(View.VISIBLE);
 
-                holder.videoAtachment.setVideoURI(questions.get(position).getAttachment());
+                holder.videoAtachment.setVideoURI(Uri.parse(questions.get(position).getAttachment()));
 
                 MediaController mediaController = new MediaController(context);
                 holder.videoAtachment.setMediaController(mediaController);
                 mediaController.setAnchorView(holder.videoAtachment);
             }
-        }*/
+            else if(questions.get(position).getAttachmentType().matches("audio")){
+                holder.AttachmentText.setText(Uri.parse(questions.get(position).getAttachment()).getLastPathSegment());
+            }
+        }
 
         if(questions.get(position).getChoices().size() > 2){
             holder.choice3.setText("C) " + questions.get(position).getChoices().get(2));
@@ -155,14 +154,10 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                         int deletedRows = db.delete(FeedReaderContract.FeedEntry2.TABLE_NAME, selection, selectionArgs);
 
                         questions.remove(position);
-                        //Question.setQuestions(questions);
                         QuestionAdapter.super.notifyDataSetChanged();
                     }
                 });
                 builder.show();
-/*              Intent intent = new Intent(context,QuestionListActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent)*/;
             }
         });
 
@@ -172,8 +167,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                 Intent intent = new Intent(context,UpdateScreen.class);
                 intent.putExtra("questiontitle",questions.get(position).getQuestion());
                 intent.putExtra("UpdateQuestion",questions.get(position));
-                /*intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);*/
                 context.startActivity(intent);
                 ((Activity)context).finish();
             }
