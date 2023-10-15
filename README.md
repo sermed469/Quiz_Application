@@ -1,2 +1,2 @@
-# Quiz_Application
+# Quiz Application
 Quiz app in Android
